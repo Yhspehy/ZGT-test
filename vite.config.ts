@@ -7,6 +7,13 @@ import vue2 from "@vitejs/plugin-vue2";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: '@use "@/style/var.scss" as *;',
+      },
+    },
+  },
   plugins: [
     vue2(),
     // legacy({

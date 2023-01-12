@@ -6,7 +6,10 @@ export default {
 
 <script setup lang="ts">
 import { reactive, ref, onMounted } from "vue";
+
 import VueKonva from "vue-konva";
+
+import BayesInfoModalVue from "./BayesInfoModal.vue";
 // import Konva from 'konva/lib/Core';
 
 // fetch("/stage.json")
@@ -28,6 +31,8 @@ const dragItemId = ref(null);
 const groupRef = ref(null);
 const stageRef = ref(null);
 const layerRef = ref(null);
+
+const visible = ref(false);
 
 const width = window.innerWidth;
 const height = window.innerHeight;
@@ -56,7 +61,7 @@ function handleCacheChange(e: any) {
 
 <template>
   <div>
-    <v-stage ref="stageRef" :config="stageConfig">
+    <!-- <v-stage ref="stageRef" :config="stageConfig">
       <v-layer ref="layerRef">
         <v-group ref="groupRef">
           <v-star
@@ -81,10 +86,14 @@ function handleCacheChange(e: any) {
           />
         </v-group>
       </v-layer>
-    </v-stage>
+    </v-stage> -->
     <div class="cache">
       <input type="checkbox" @change="handleCacheChange" /> cache shapes
     </div>
+
+    <BayesInfoModalVue v-model="visible" bayeNo="A103" />
+
+    <div @click="visible = true">visible</div>
   </div>
 </template>
 
