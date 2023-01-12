@@ -7,14 +7,11 @@ export default {
 <script setup lang="ts">
 import { ref, watch } from "vue";
 
-import {
-  Modal as AModal,
-  Input as AInput,
-  Button as AButton,
-} from "ant-design-vue";
-import "ant-design-vue/lib/modal/style/css";
+import { Input as AInput, Button as AButton } from "ant-design-vue";
 import "ant-design-vue/lib/input/style/css";
 import "ant-design-vue/lib/button/style/css";
+
+import SlotModal from "./SlotModal.vue";
 
 const props = defineProps({
   value: {
@@ -39,23 +36,19 @@ const axis = ref([6, 4]);
 const _bayeNo = ref(props.bayeNo);
 // input中输入的贝位
 const bayeValue = ref("");
+// slotModal visiable
+const slotVisiable = ref(false);
+// slotNo
+const slotNo = ref("");
 
 watch(
   () => props.value,
   (value) => {
-    console.log(value);
-    if (bayesInfoList.value.length === 0)
-      fetch("/area.json")
-        .then((res) => {
-          return res.json();
-        })
-        .then((res) => {
-          bayesInfoList.value = res.data.yardSlotsAndContainersInfo;
-        });
+    if (value && bayesInfoList.value.length === 0) getList();
   }
 );
 
-function refresh(): void {
+function getList(): void {
   // 可传入baye参数
   // loading可同时加上
   fetch("/area.json")
@@ -70,7 +63,15 @@ function refresh(): void {
 function toBaye() {
   _bayeNo.value = bayeValue.value;
 
-  refresh();
+  getList();
+}
+
+function showSlot(col: number, row: number) {
+  if (bayesInfoList.value?.[col - 1]?.[row - 1]?.YST_SLOTNO) {
+    const slotNoVal = bayesInfoList.value?.[col - 1]?.[row - 1]?.YST_SLOTNO;
+    slotNo.value = slotNoVal;
+    slotVisiable.value = true;
+  }
 }
 </script>
 
@@ -95,7 +96,7 @@ function toBaye() {
         <a-input class="navigate-input" v-model="bayeValue" />
         <a-button @click="toBaye">go</a-button>
 
-        <a-button class="refresh" @click="refresh">刷新</a-button>
+        <a-button class="refresh" @click="getList">刷新</a-button>
       </div>
 
       <!-- 位倍内容 -->
@@ -108,15 +109,30 @@ function toBaye() {
 
         <div class="flex-1">
           <div class="list-warp">
-            <div v-for="(col, idx) in bayesInfoList" :key="idx" class="col">
-              <div v-for="slot in col" :key="slot.YST_SLOTNO" class="slot">
-                <div>IYC_CNTRNO</div>
-                <div>GP</div>
-                <div>IE SAC</div>
-                <div>HSK</div>
-                <div>
-                  {{ slot.YST_AREBAY + slot.YST_ROWNO + slot.YST_TIERNO }}
-                </div>
+            <div v-for="col in axis[0]" :key="col" class="col">
+              <div
+                v-for="row in axis[1]"
+                :key="col + '-' + row"
+                class="slot cursor"
+                @click="() => showSlot(col, row)"
+              >
+                <template
+                  v-if="
+                    bayesInfoList[col - 1] && bayesInfoList[col - 1][row - 1]
+                  "
+                >
+                  <div>IYC_CNTRNO</div>
+                  <div>GP</div>
+                  <div>IE SAC</div>
+                  <div>HSK</div>
+                  <div>
+                    {{
+                      bayesInfoList[col - 1][row - 1].YST_AREBAY +
+                      bayesInfoList[col - 1][row - 1].YST_ROWNO +
+                      bayesInfoList[col - 1][row - 1].YST_TIERNO
+                    }}
+                  </div>
+                </template>
               </div>
             </div>
           </div>
@@ -129,6 +145,8 @@ function toBaye() {
         </div>
       </div>
     </div>
+
+    <slot-modal v-model="slotVisiable" :slotNo="slotNo" />
   </a-modal>
 </template>
 
@@ -148,7 +166,7 @@ function toBaye() {
       width: 200px;
     }
 
-    .refresh {
+    .getList {
       margin-left: auto;
     }
   }
@@ -177,8 +195,11 @@ function toBaye() {
       @include flex-space-around;
 
       .col {
+        @include flex-column;
+        flex-direction: column-reverse;
         flex: 1;
         .slot {
+          height: 127px;
           background-color: #d3fdd1;
           border: 1px solid grey;
           padding: 10px;
