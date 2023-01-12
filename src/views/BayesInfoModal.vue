@@ -113,7 +113,7 @@ function showSlot(col: number, row: number) {
               <div
                 v-for="row in axis[1]"
                 :key="col + '-' + row"
-                class="slot cursor"
+                class="slot-wrap cursor"
                 @click="() => showSlot(col, row)"
               >
                 <template
@@ -121,16 +121,27 @@ function showSlot(col: number, row: number) {
                     bayesInfoList[col - 1] && bayesInfoList[col - 1][row - 1]
                   "
                 >
-                  <div>IYC_CNTRNO</div>
-                  <div>GP</div>
-                  <div>IE SAC</div>
-                  <div>HSK</div>
-                  <div>
-                    {{
-                      bayesInfoList[col - 1][row - 1].YST_AREBAY +
-                      bayesInfoList[col - 1][row - 1].YST_ROWNO +
-                      bayesInfoList[col - 1][row - 1].YST_TIERNO
-                    }}
+                  <div
+                    class="slot cursor"
+                    :style="{
+                      backgroundColor: bayesInfoList[col - 1][row - 1].STS_EFFG
+                        ? bayesInfoList[col - 1][row - 1].STS_EFFG === 'E'
+                          ? '#d3fdd1'
+                          : 'orange'
+                        : '#fff',
+                    }"
+                  >
+                    <div>IYC_CNTRNO</div>
+                    <div>GP</div>
+                    <div>IE SAC</div>
+                    <div>HSK</div>
+                    <div>
+                      {{
+                        bayesInfoList[col - 1][row - 1].YST_AREBAY +
+                        bayesInfoList[col - 1][row - 1].YST_ROWNO +
+                        bayesInfoList[col - 1][row - 1].YST_TIERNO
+                      }}
+                    </div>
                   </div>
                 </template>
               </div>
@@ -198,12 +209,16 @@ function showSlot(col: number, row: number) {
         @include flex-column;
         flex-direction: column-reverse;
         flex: 1;
-        .slot {
+        .slot-wrap {
           height: 127px;
-          background-color: #d3fdd1;
+          // background-color: #d3fdd1;
           border: 1px solid grey;
-          padding: 10px;
           margin: 0px 10px 10px 0;
+
+          .slot {
+            height: 100%;
+            padding: 10px;
+          }
         }
       }
     }
