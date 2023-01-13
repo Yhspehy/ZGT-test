@@ -5,87 +5,30 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted } from "vue";
+import { ref, onMounted, nextTick } from "vue";
 
 import BayesInfoModalVue from "./BayesInfoModal.vue";
 import Konva from "konva/lib/Core";
 import "konva/lib/shapes/Rect";
+import "konva/lib/shapes/Text";
 
-const stageConfig = reactive({
-  width: window.innerWidth,
-  height: window.innerHeight,
-  draggable: true,
-});
+import { bayeColorList } from "@/utils/dict";
+import type { StageType } from "./type";
 
-const list = ref<any[]>([]);
-const dragItemId = ref(null);
-const groupRef = ref(null);
-const stageRef = ref(null);
-const layerRef = ref(null);
+const benchmarkOfRect = ref(5);
+const benchmarkOfArea = ref(2);
 
+const stageRef = ref<Element | null>(null);
+const scale = ref(1);
+
+// 贝位信息
 const visible = ref(false);
-
-const width = window.innerWidth;
-const height = window.innerHeight;
+const areaNo = ref("");
+const bayeNo = ref("");
+const endBay = ref("");
 
 onMounted(() => {
   getAreaList();
-  // for (let n = 0; n < 300; n++) {
-  //   list.value.push({
-  //     id: n,
-  //     x: Math.random() * width,
-  //     y: Math.random() * height,
-  //     rotation: Math.random() * 180,
-  //     scale: Math.random(),
-  //   });
-  // }
-
-  const stage = new Konva.Stage({
-    container: "container",
-    width: window.innerWidth,
-    height: window.innerHeight,
-    draggable: true,
-  });
-
-  const layer = new Konva.Layer();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rect1 = new (Konva as any).Rect({
-    x: 20,
-    y: 20,
-    width: 100,
-    height: 50,
-    fill: "green",
-    stroke: "black",
-    strokeWidth: 4,
-  });
-  // add the shape to the layer
-  layer.add(rect1);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rect2 = new (Konva as any).Rect({
-    x: 150,
-    y: 40,
-    width: 100,
-    height: 50,
-    fill: "red",
-    shadowBlur: 10,
-    cornerRadius: 10,
-  });
-  layer.add(rect2);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rect3 = new (Konva as any).Rect({
-    x: 50,
-    y: 120,
-    width: 100,
-    height: 100,
-    fill: "blue",
-    cornerRadius: [0, 10, 20, 30],
-  });
-  layer.add(rect3);
-
-  // add the layer to the stage
-  stage.add(layer);
 });
 
 function getAreaList() {
@@ -94,59 +37,130 @@ function getAreaList() {
       return res.json();
     })
     .then((res) => {
-      console.log(res);
+      walkTree(res.data);
     });
 }
 
-// function handleCacheChange(e: any) {
-//   const shouldCache = e.target.checked;
-//   if (shouldCache) {
-//     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-//     groupRef.value!.getNode().cache();
-//   } else {
-//     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-//     groupRef.value!.getNode().clearCache();
-//   }
-// }
+function walkTree(data: StageType) {
+  console.log(data);
+  const { berthesInfo, yardAreasInfo } = data;
+  const app = document.querySelectorAll("#app")[0];
+
+  const stage = new Konva.Stage({
+    container: "container",
+    width: app.scrollWidth,
+    height: window.innerHeight,
+    draggable: true,
+  });
+
+  const layer = new Konva.Layer();
+
+  for (let idx = 0; idx < berthesInfo.length; idx++) {
+    const berthes = berthesInfo[idx];
+    const rect = new (Konva as any).Rect({
+      x: parseInt(berthes.BTH_STPST) * benchmarkOfArea.value,
+      y: 10,
+
+      width:
+        (parseInt(berthes.BTH_EDPST) - parseInt(berthes.BTH_STPST)) *
+        benchmarkOfArea.value,
+      height: 20,
+      fill: "rgb(135,206,250)",
+    });
+
+    const name = new (Konva as any).Text({
+      x: (parseInt(berthes.BTH_STPST) + 36) * benchmarkOfArea.value,
+      y: 14,
+      text: berthes.BTH_NAME,
+      fontSize: 14,
+      fill: "black",
+    });
+
+    layer.add(rect);
+    layer.add(name);
+  }
+
+  // 箱区
+  for (let areaIdx = 0; areaIdx < yardAreasInfo.length; areaIdx++) {
+    const areaInfo = yardAreasInfo[areaIdx];
+    const areaX = areaInfo.ARE_STARTX;
+    const areaY = areaInfo.ARE_STARTY;
+    const bayeList = areaInfo.yardBayesInfo;
+
+    // 每个箱区的贝
+    // 因为贝是从右往左，所以倒序
+    for (let bayeIdx = bayeList.length - 1; bayeIdx >= 0; bayeIdx--) {
+      const bayeInfo = bayeList[bayeIdx];
+      const bayeRowList = bayeInfo.yardRowsInfo;
+      /**
+       * 每个贝的列，包含层高
+       * -----
+       * 这里的strokeWidth是按照边界左右延伸，如果设置成大于1，这样每次排列后x和y都要加上strokeWidth/2
+       * 但是如果设置成1的话就不需要了，这样的话两个边界的stocke会重合，等于还是1px
+       */
+      for (let rowIdx = 0; rowIdx < bayeRowList.length; rowIdx++) {
+        const rowInfo = bayeRowList[rowIdx];
+        const rect = new (Konva as any).Rect({
+          x:
+            parseInt(areaX) * benchmarkOfArea.value +
+            bayeIdx * benchmarkOfRect.value * 2,
+          y:
+            parseInt(areaY) * benchmarkOfArea.value +
+            rowIdx * benchmarkOfRect.value,
+          width: benchmarkOfRect.value * 2,
+          height: benchmarkOfRect.value,
+          fill: bayeColorList[rowInfo.ContainerNum],
+          stroke: "grey",
+          strokeWidth: 1,
+          bayeNo: bayeInfo.YBY_BAYNO,
+          areaNo: bayeInfo.YBY_ARE_AREANO,
+          endBay: areaInfo.ARE_EDBAY,
+        });
+        layer.add(rect);
+      }
+    }
+  }
+
+  layer.on("click", (evt: any) => {
+    const rect = evt.target;
+    if (rect) {
+      bayeNo.value = rect.attrs.bayeNo;
+      areaNo.value = rect.attrs.areaNo;
+      endBay.value = rect.attrs.endBay;
+      visible.value = true;
+    }
+  });
+
+  stage.add(layer);
+
+  nextTick(() => {
+    document.body.onwheel = zoom;
+  });
+}
+
+function zoom(event: WheelEvent) {
+  event.preventDefault();
+
+  if (visible.value) return;
+
+  scale.value += event.deltaY * -0.01 * 0.1;
+
+  scale.value = Math.min(Math.max(0.125, scale.value), 4);
+
+  (stageRef.value as HTMLElement).style.transform = `scale(${scale.value})`;
+}
 </script>
 
 <template>
   <div>
-    <div id="container"></div>
+    <div id="container" ref="stageRef"></div>
 
-    <!-- <v-stage ref="stageRef" :config="stageConfig">
-      <v-layer ref="layerRef">
-        <v-group ref="groupRef">
-          <v-star
-            v-for="item in list"
-            :key="item.id"
-            :config="{
-              x: item.x,
-              y: item.y,
-              rotation: item.rotation,
-              id: item.id,
-              numPoints: 5,
-              innerRadius: 30,
-              outerRadius: 50,
-              fill: '#89b717',
-              opacity: 0.8,
-              shadowColor: 'black',
-              shadowBlur: 10,
-              shadowOpacity: 0.6,
-              scaleX: item.scale,
-              scaleY: item.scale,
-            }"
-          />
-        </v-group>
-      </v-layer>
-    </v-stage> -->
-    <!-- <div class="cache">
-      <input type="checkbox" @change="handleCacheChange" /> cache shapes
-    </div> -->
-
-    <BayesInfoModalVue v-model="visible" bayeNo="A103" />
-
-    <div @click="visible = true">visible</div>
+    <BayesInfoModalVue
+      v-model="visible"
+      :areaNo="areaNo"
+      :bayeNo="bayeNo"
+      :endBay="endBay"
+    />
   </div>
 </template>
 

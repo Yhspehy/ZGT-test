@@ -7,20 +7,30 @@ export default {
 <script setup lang="ts">
 import { ref, watch } from "vue";
 
+import SlotModal from "./SlotModal.vue";
+
 import { Input as AInput, Button as AButton } from "ant-design-vue";
 import "ant-design-vue/lib/input/style/css";
 import "ant-design-vue/lib/button/style/css";
 
-import SlotModal from "./SlotModal.vue";
+import type { BayesInfoList } from "./type";
 
 const props = defineProps({
   value: {
     type: Boolean,
     default: false,
   },
+  areaNo: {
+    type: String,
+    default: "",
+  },
   bayeNo: {
     type: String,
     default: "",
+  },
+  endBay: {
+    type: String,
+    default: "0",
   },
 });
 
@@ -29,11 +39,11 @@ const emit = defineEmits<{
 }>();
 
 // 贝位列表
-const bayesInfoList = ref([]);
+const bayesInfoList = ref<BayesInfoList>([]);
 // 横纵轴的长度，到时候调用接口获取
 const axis = ref([6, 4]);
 // 当前的贝位
-const _bayeNo = ref(props.bayeNo);
+const _bayeNo = ref<string>(props.bayeNo);
 // input中输入的贝位
 const bayeValue = ref("");
 // slotModal visiable
@@ -48,6 +58,13 @@ watch(
   }
 );
 
+watch(
+  () => props.bayeNo,
+  (value) => {
+    _bayeNo.value = value;
+  }
+);
+
 function getList(): void {
   // 可传入baye参数
   // loading可同时加上
@@ -58,6 +75,22 @@ function getList(): void {
     .then((res) => {
       bayesInfoList.value = res.data.yardSlotsAndContainersInfo;
     });
+}
+
+function prev() {
+  const BAYENO = parseInt(_bayeNo.value);
+  if (BAYENO > 1) {
+    _bayeNo.value = BAYENO - 2 > 10 ? BAYENO - 2 + "" : "0" + (BAYENO - 2);
+    getList();
+  }
+}
+
+function next() {
+  const BAYENO = parseInt(_bayeNo.value);
+  if (BAYENO < parseInt(props.endBay)) {
+    _bayeNo.value = BAYENO + 2 > 10 ? BAYENO + 2 + "" : "0" + (BAYENO + 2);
+    getList();
+  }
 }
 
 function toBaye() {
@@ -88,9 +121,9 @@ function showSlot(col: number, row: number) {
   >
     <div class="bayes-info">
       <div class="bayes-info-header">
-        <div class="margin-right-20">当前{{ _bayeNo }}</div>
-        <a-button>上一个</a-button>
-        <a-button class="margin-right-20">下一个</a-button>
+        <div class="margin-right-20">当前{{ areaNo + _bayeNo }}</div>
+        <a-button @click="prev">上一个</a-button>
+        <a-button class="margin-right-20" @click="next">下一个</a-button>
 
         <a-button>跳至</a-button>
         <a-input class="navigate-input" v-model="bayeValue" />

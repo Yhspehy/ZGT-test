@@ -5,13 +5,3 @@
     <router-view />
   </div>
 </template>
-
-<style>
-.cursor {
-  cursor: pointer;
-}
-
-.flex-1 {
-  flex: 1;
-}
-</style>
