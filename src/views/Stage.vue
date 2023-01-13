@@ -48,7 +48,8 @@ function walkTree(data: StageType) {
 
   const stage = new Konva.Stage({
     container: "container",
-    width: app.scrollWidth,
+    // width: app.scrollWidth,
+    width: window.innerWidth,
     height: window.innerHeight,
     draggable: true,
   });
