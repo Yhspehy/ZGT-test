@@ -15,13 +15,17 @@ import "konva/lib/shapes/Text";
 import { bayeColorList } from "@/utils/dict";
 import type { StageType } from "./type";
 
+// 生成rect的基准，默认放大5倍，基数是1px
 const benchmarkOfRect = ref(5);
+// 箱区的基准，避免rect变大，而箱区靠拢
 const benchmarkOfArea = ref(2);
 
+// stageRef
 const stageRef = ref<Element | null>(null);
+// stage scale
 const scale = ref(1);
 
-// 贝位信息
+// 贝位modal的展示
 const visible = ref(false);
 const areaNo = ref("");
 const bayeNo = ref("");
@@ -31,6 +35,9 @@ onMounted(() => {
   getAreaList();
 });
 
+/**
+ * 获取stage数据
+ */
 function getAreaList() {
   fetch("/stage.json")
     .then((res) => {
@@ -41,10 +48,13 @@ function getAreaList() {
     });
 }
 
+/**
+ * 遍历数据，初始化state，绘制canvas
+ * 如果需要刷新，则需要将state状态提取出来
+ * @param data  StageType
+ */
 function walkTree(data: StageType) {
-  console.log(data);
   const { berthesInfo, yardAreasInfo } = data;
-  const app = document.querySelectorAll("#app")[0];
 
   const stage = new Konva.Stage({
     container: "container",
@@ -56,12 +66,12 @@ function walkTree(data: StageType) {
 
   const layer = new Konva.Layer();
 
+  // 遍历泊场
   for (let idx = 0; idx < berthesInfo.length; idx++) {
     const berthes = berthesInfo[idx];
     const rect = new (Konva as any).Rect({
       x: parseInt(berthes.BTH_STPST) * benchmarkOfArea.value,
       y: 10,
-
       width:
         (parseInt(berthes.BTH_EDPST) - parseInt(berthes.BTH_STPST)) *
         benchmarkOfArea.value,
@@ -113,6 +123,7 @@ function walkTree(data: StageType) {
           fill: bayeColorList[rowInfo.ContainerNum],
           stroke: "grey",
           strokeWidth: 1,
+          // 自定义数据
           bayeNo: bayeInfo.YBY_BAYNO,
           areaNo: bayeInfo.YBY_ARE_AREANO,
           endBay: areaInfo.ARE_EDBAY,
@@ -122,6 +133,10 @@ function walkTree(data: StageType) {
     }
   }
 
+  /**
+   * Event Delegation
+   * 避免多个rect绑定
+   */
   layer.on("click", (evt: any) => {
     const rect = evt.target;
     if (rect) {
@@ -142,12 +157,13 @@ function walkTree(data: StageType) {
 function zoom(event: WheelEvent) {
   event.preventDefault();
 
+  /**
+   * 防止展示弹窗的时候滚动canvas
+   */
   if (visible.value) return;
 
   scale.value += event.deltaY * -0.01 * 0.1;
-
   scale.value = Math.min(Math.max(0.125, scale.value), 4);
-
   (stageRef.value as HTMLElement).style.transform = `scale(${scale.value})`;
 }
 </script>
@@ -164,5 +180,3 @@ function zoom(event: WheelEvent) {
     />
   </div>
 </template>
-
-<style scoped></style>

@@ -33,7 +33,7 @@ const emit = defineEmits<{
 }>();
 
 // 箱子数据
-const tab1Data = ref({});
+const tab1Data = ref<any>({});
 const tab2Data = ref([]);
 const tab3Data = ref([]);
 
@@ -300,9 +300,7 @@ function callback(tabKey: 1 | 2 | 3) {
           <a-table :columns="columns" :data-source="tab2Data"></a-table>
         </tab-pane>
         <tab-pane key="3" tab="箱货信息">
-          <a-table :columns="columns" :data-source="tab2Data">
-            <a slot="name" slot-scope="text">{{ text }}</a>
-          </a-table>
+          <a-table :columns="columns" :data-source="tab2Data"></a-table>
         </tab-pane>
       </a-tabs>
     </div>
