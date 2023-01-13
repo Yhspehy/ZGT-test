@@ -135,7 +135,7 @@ function walkTree(data: StageType) {
   stage.add(layer);
 
   nextTick(() => {
-    document.body.onwheel = zoom;
+    (stageRef.value as HTMLElement).onwheel = zoom;
   });
 }
 
