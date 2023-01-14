@@ -27,7 +27,7 @@ export function mockData(areaList: AreaSettingInfo[]) {
 
     // 添加贝位
     const endBay = parseInt(areaInfo.ARE_EDBAY);
-    for (let j = 1; j < endBay; j = j + 2) {
+    for (let j = 1; j <= endBay; j = j + 2) {
       bayeId++;
       const _bayeId = "C_" + bayeId;
 
@@ -75,8 +75,7 @@ export function mockData(areaList: AreaSettingInfo[]) {
   }
 
   console.log(`当前箱子总数：${currentNum}`);
-  console.log("mock time: " + (Date.now() - start));
-
+  console.log("mock time: " + (Date.now() - start) + "ms");
   return result;
 }
 

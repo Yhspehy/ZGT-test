@@ -29,11 +29,16 @@ const benchmarkOfRect = ref(5);
 // 箱区的基准，避免rect变大，而箱区靠拢
 const benchmarkOfArea = ref(2);
 
-// stageRef && stageEl && layerEl
+// stageRef && stageEl && layerEl && layerAxisEl
 const stageRef = ref<Element | null>(null);
 let stageEl: any = null;
 let layerEl: any = null;
+let layerAxisEl: any = null;
+let layerIdEl: any = null;
+
+// cache el
 let rectEl: any = null;
+let textEl: any = null;
 // stage scale
 const scale = ref(1);
 
@@ -93,36 +98,9 @@ function walkStage(data: StageType) {
 
   stageEl = stage;
 
-  const layerHeader = new Konva.Layer();
-
-  // 遍历泊场
-  for (let idx = 0; idx < berthesInfo.length; idx++) {
-    const berthes = berthesInfo[idx];
-    const rect = new (Konva as any).Rect({
-      x: parseInt(berthes.BTH_STPST) * benchmarkOfArea.value,
-      y: 10,
-      width:
-        (parseInt(berthes.BTH_EDPST) - parseInt(berthes.BTH_STPST)) *
-        benchmarkOfArea.value,
-      height: 20,
-      fill: "rgb(135,206,250)",
-    });
-
-    const name = new (Konva as any).Text({
-      x: (parseInt(berthes.BTH_STPST) + 36) * benchmarkOfArea.value,
-      y: 14,
-      text: berthes.BTH_NAME,
-      fontSize: 14,
-      fill: "black",
-    });
-
-    layerHeader.add(rect);
-    layerHeader.add(name);
-  }
-
-  stage.add(layerHeader);
-
-  // clone rect for cache
+  /**
+   * cache text and rect
+   */
   rectEl = new (Konva as any).Rect({
     x: 0,
     y: 0,
@@ -134,10 +112,55 @@ function walkStage(data: StageType) {
   });
   rectEl.cache();
 
+  textEl = new (Konva as any).Text({
+    x: 0,
+    y: 14,
+    text: "1",
+    fontSize: 6,
+    fill: "black",
+  });
+  textEl.cache();
+
+  const layerHeader = new Konva.Layer();
+  // 遍历泊场
+  for (let idx = 0; idx < berthesInfo.length; idx++) {
+    const berthes = berthesInfo[idx];
+    const rect = rectEl.clone({
+      x: parseInt(berthes.BTH_STPST) * benchmarkOfArea.value,
+      y: 10,
+      width:
+        (parseInt(berthes.BTH_EDPST) - parseInt(berthes.BTH_STPST)) *
+        benchmarkOfArea.value,
+      height: 20,
+      fill: "rgb(135,206,250)",
+      strokeWidth: 0,
+    });
+
+    const name = textEl.clone({
+      x: (parseInt(berthes.BTH_STPST) + 36) * benchmarkOfArea.value,
+      y: 14,
+      text: berthes.BTH_NAME,
+      fontSize: 14,
+    });
+
+    layerHeader.add(rect);
+    layerHeader.add(name);
+  }
+
+  stage.add(layerHeader);
+
   // 箱区
   const layerBaye = new Konva.Layer();
   layerEl = layerBaye;
   walkBaye(yardAreasInfo);
+
+  // 渲染ID
+  drawId(yardAreasInfo);
+
+  // 渲染坐标
+  setTimeout(() => {
+    drawAxis(yardAreasInfo);
+  }, 1000);
 
   /**
    * Event Delegation
@@ -159,12 +182,16 @@ function walkStage(data: StageType) {
   });
 }
 
+/**
+ * 遍历倍位
+ * @param yardAreasInfo
+ */
 function walkBaye(yardAreasInfo: YardAreasInfo[]) {
   const start = Date.now();
   for (let areaIdx = 0; areaIdx < yardAreasInfo.length; areaIdx++) {
     const areaInfo = yardAreasInfo[areaIdx];
-    const areaX = areaInfo.ARE_STARTX;
-    const areaY = areaInfo.ARE_STARTY;
+    const areaX = parseInt(areaInfo.ARE_STARTX);
+    const areaY = parseInt(areaInfo.ARE_STARTY);
     const bayeList = areaInfo.yardBayesInfo;
 
     // 每个箱区的贝
@@ -185,11 +212,8 @@ function walkBaye(yardAreasInfo: YardAreasInfo[]) {
         const rowInfo = bayeRowList[rowIdx];
         const rect = rectEl.clone({
           x:
-            parseInt(areaX) * benchmarkOfArea.value +
-            bayeIdx * benchmarkOfRect.value * 2,
-          y:
-            parseInt(areaY) * benchmarkOfArea.value +
-            rowIdx * benchmarkOfRect.value,
+            areaX * benchmarkOfArea.value + bayeIdx * benchmarkOfRect.value * 2,
+          y: areaY * benchmarkOfArea.value + rowIdx * benchmarkOfRect.value,
           width: benchmarkOfRect.value * 2,
           height: benchmarkOfRect.value,
           fill: bayeColorList[rowInfo.ContainerNum].color,
@@ -205,7 +229,75 @@ function walkBaye(yardAreasInfo: YardAreasInfo[]) {
     }
   }
   layerEl.draw();
-  console.log("draw time: " + (Date.now() - start));
+  console.log("draw time: " + (Date.now() - start) + "ms");
+}
+
+function drawAxis(yardAreasInfo: YardAreasInfo[]) {
+  layerAxisEl = new Konva.Layer();
+
+  for (let areaIdx = 0; areaIdx < yardAreasInfo.length; areaIdx++) {
+    const areaInfo = yardAreasInfo[areaIdx];
+    const areaX = parseInt(areaInfo.ARE_STARTX);
+    const areaY = parseInt(areaInfo.ARE_STARTY);
+    const rowNum = parseInt(areaInfo.ARE_ROWNUM);
+    const endBay = parseInt(areaInfo.ARE_EDBAY);
+
+    // 先画列
+    for (let rowIdx = 0; rowIdx < rowNum; rowIdx++) {
+      const text = textEl.clone({
+        x: (areaX - 2) * benchmarkOfArea.value,
+        y: areaY * benchmarkOfArea.value + rowIdx * benchmarkOfRect.value,
+        text: "1",
+      });
+      layerAxisEl.add(text);
+    }
+
+    // 每个箱区的贝
+    // 因为贝是从右往左，所以倒序
+    if (areaInfo.ARE_BAYWAY === "LR") {
+      for (let rowIdx = 1; rowIdx <= endBay; rowIdx += 2) {
+        const text = textEl.clone({
+          x:
+            areaX * benchmarkOfArea.value +
+            (rowIdx - 1) * benchmarkOfRect.value,
+          y: areaY * benchmarkOfArea.value - benchmarkOfRect.value * 1.4,
+          text: rowIdx < 10 ? "0" + rowIdx : rowIdx,
+          align: "center",
+          width: benchmarkOfRect.value * 2,
+        });
+        layerAxisEl.add(text);
+      }
+    } else {
+      for (let rowIdx = endBay; rowIdx > 0; rowIdx -= 2) {
+        const text = textEl.clone({
+          x:
+            areaX * benchmarkOfArea.value +
+            (endBay - rowIdx) * benchmarkOfRect.value,
+          y: areaY * benchmarkOfArea.value - benchmarkOfRect.value * 1.4,
+          text: rowIdx < 10 ? "0" + rowIdx : rowIdx,
+          align: "center",
+          width: benchmarkOfRect.value * 2,
+        });
+        layerAxisEl.add(text);
+      }
+    }
+  }
+}
+
+function drawId(yardAreasInfo: YardAreasInfo[]) {
+  layerIdEl = new Konva.Layer();
+
+  for (let areaIdx = 0; areaIdx < yardAreasInfo.length; areaIdx++) {
+    const areaInfo = yardAreasInfo[areaIdx];
+    const areaX = parseInt(areaInfo.ARE_STARTX);
+    const areaY = parseInt(areaInfo.ARE_STARTY);
+    const text = textEl.clone({
+      x: (areaX - 4) * benchmarkOfArea.value,
+      y: areaY * benchmarkOfArea.value - benchmarkOfRect.value * 1.4,
+      text: areaInfo.ARE_AREANO,
+    });
+    layerIdEl.add(text);
+  }
 }
 
 function refresh() {
@@ -223,11 +315,21 @@ function zoom(event: WheelEvent) {
   if (visible.value) return;
 
   scale.value += event.deltaY * -0.01 * 0.1;
-  scale.value = Math.min(Math.max(0.125, scale.value), 4);
+  scale.value = Math.min(Math.max(0.125, scale.value), 10);
   stageEl.scale({
     x: scale.value,
     y: scale.value,
   });
+  if (scale.value > 3) {
+    stageEl.add(layerAxisEl);
+    stageEl.add(layerIdEl);
+  } else if (scale.value > 2) {
+    stageEl.add(layerIdEl);
+    layerAxisEl.remove();
+  } else {
+    layerIdEl.remove();
+    layerAxisEl.remove();
+  }
 }
 
 function search() {
@@ -318,6 +420,7 @@ function search() {
 .color-container {
   @include flex-start;
   margin-left: 20px;
+  color: black;
 
   .baye-color,
   .slot-color {
@@ -330,6 +433,7 @@ function search() {
         width: 20px;
         height: 10px;
         margin-left: 4px;
+        border: 1px solid grey;
       }
     }
   }

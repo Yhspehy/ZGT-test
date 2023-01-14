@@ -34,6 +34,10 @@ a,
   }
 } */
 
+#app {
+  background: #fff;
+}
+
 .cursor {
   cursor: pointer;
 }
