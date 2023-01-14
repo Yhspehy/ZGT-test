@@ -17,7 +17,7 @@ import "ant-design-vue/lib/input/style/css";
 import "ant-design-vue/lib/button/style/css";
 import "ant-design-vue/lib/message/style/css";
 
-import { bayeColorList } from "@/utils/dict";
+import { bayeColorList, slotColorList } from "@/utils/dict";
 import type { StageType } from "./type";
 
 // 生成rect的基准，默认放大5倍，基数是1px
@@ -71,8 +71,9 @@ function walkTree(data: StageType) {
   const stage = new Konva.Stage({
     container: "container",
     // width: app.scrollWidth,
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: window.innerWidth - 20,
+    // height: window.innerHeight,
+    height: 600,
     draggable: true,
   });
 
@@ -134,7 +135,7 @@ function walkTree(data: StageType) {
             rowIdx * benchmarkOfRect.value,
           width: benchmarkOfRect.value * 2,
           height: benchmarkOfRect.value,
-          fill: bayeColorList[rowInfo.ContainerNum],
+          fill: bayeColorList[rowInfo.ContainerNum].color,
           stroke: "grey",
           strokeWidth: 1,
           // 自定义数据
@@ -202,6 +203,7 @@ function search() {
 
 <template>
   <div>
+    <!-- 顶部曹作栏 -->
     <div class="operate-header">
       <a-button class="refresh">刷新</a-button>
 
@@ -216,8 +218,26 @@ function search() {
       <a-button class="setting">场地设置</a-button>
     </div>
 
+    <!-- canvas -->
     <div id="container" ref="stageRef"></div>
 
+    <!-- 颜色说明 -->
+    <div class="color-container">
+      <div class="baye-color">
+        <div v-for="el in bayeColorList" :key="el.label" class="column">
+          <div class="label">{{ el.label }}层高颜色样式</div>
+          <div class="color" :style="{ backgroundColor: el.color }"></div>
+        </div>
+      </div>
+      <div class="slot-color">
+        <div v-for="el in slotColorList" :key="el.label" class="column">
+          <div class="label">{{ el.label }}箱颜色样式</div>
+          <div class="color" :style="{ backgroundColor: el.color }"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 贝位弹窗 -->
     <BayesInfoModalVue
       v-model="visible"
       :areaNo="areaNo"
@@ -232,6 +252,7 @@ function search() {
 .operate-header {
   @include flex-start-center;
   margin-bottom: 30px;
+  margin-left: 20px;
 
   .refresh {
     margin-right: 30px;
@@ -239,6 +260,30 @@ function search() {
 
   .setting {
     margin-left: 30px;
+  }
+}
+
+#container {
+  margin-left: 20px;
+}
+
+.color-container {
+  @include flex-start;
+  margin-left: 20px;
+
+  .baye-color,
+  .slot-color {
+    margin-right: 30px;
+
+    .column {
+      @include flex-start-center;
+
+      .color {
+        width: 20px;
+        height: 10px;
+        margin-left: 4px;
+      }
+    }
   }
 }
 </style>
