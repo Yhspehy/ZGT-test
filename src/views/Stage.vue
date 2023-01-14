@@ -12,6 +12,11 @@ import Konva from "konva/lib/Core";
 import "konva/lib/shapes/Rect";
 import "konva/lib/shapes/Text";
 
+import { Input as AInput, Button as AButton, message } from "ant-design-vue";
+import "ant-design-vue/lib/input/style/css";
+import "ant-design-vue/lib/button/style/css";
+import "ant-design-vue/lib/message/style/css";
+
 import { bayeColorList } from "@/utils/dict";
 import type { StageType } from "./type";
 
@@ -20,7 +25,7 @@ const benchmarkOfRect = ref(5);
 // 箱区的基准，避免rect变大，而箱区靠拢
 const benchmarkOfArea = ref(2);
 
-// stageRef
+// stageRef && stageEl
 const stageRef = ref<Element | null>(null);
 const stageEl = ref<any>(null);
 // stage scale
@@ -31,6 +36,10 @@ const visible = ref(false);
 const areaNo = ref("");
 const bayeNo = ref("");
 const endBay = ref("");
+const slotNo = ref("");
+
+// 搜索内容
+const searchValue = ref("");
 
 onMounted(() => {
   getAreaList();
@@ -174,10 +183,39 @@ function zoom(event: WheelEvent) {
     y: scale.value,
   });
 }
+
+function refresh() {}
+
+function search() {
+  if (searchValue.value.length !== 6) {
+    return message.error("请输入6位箱号");
+  }
+  // 还有其他的判断条件可以逐步加上
+
+  areaNo.value = searchValue.value.slice(0, 2);
+  bayeNo.value = searchValue.value.slice(2, 4);
+  endBay.value = "17";
+  slotNo.value = searchValue.value;
+  visible.value = true;
+}
 </script>
 
 <template>
   <div>
+    <div class="operate-header">
+      <a-button class="refresh">刷新</a-button>
+
+      <a-input
+        class="navigate-input"
+        v-model="searchValue"
+        style="width: 200px"
+        @keyup.enter.native="search"
+      />
+      <a-button @click="search">搜索</a-button>
+
+      <a-button class="setting">场地设置</a-button>
+    </div>
+
     <div id="container" ref="stageRef"></div>
 
     <BayesInfoModalVue
@@ -185,6 +223,22 @@ function zoom(event: WheelEvent) {
       :areaNo="areaNo"
       :bayeNo="bayeNo"
       :endBay="endBay"
+      :slotNo="slotNo"
     />
   </div>
 </template>
+
+<style lang="scss" scoed>
+.operate-header {
+  @include flex-start-center;
+  margin-bottom: 30px;
+
+  .refresh {
+    margin-right: 30px;
+  }
+
+  .setting {
+    margin-left: 30px;
+  }
+}
+</style>

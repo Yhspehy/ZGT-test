@@ -32,6 +32,10 @@ const props = defineProps({
     type: String,
     default: "0",
   },
+  slotNo: {
+    type: String,
+    default: "",
+  },
 });
 
 const emit = defineEmits<{
@@ -49,7 +53,7 @@ const bayeValue = ref("");
 // slotModal visiable
 const slotVisiable = ref(false);
 // slotNo
-const slotNo = ref("");
+const _slotNo = ref("");
 
 watch(
   () => props.value,
@@ -62,6 +66,14 @@ watch(
   () => props.bayeNo,
   (value) => {
     _bayeNo.value = value;
+  }
+);
+
+watch(
+  () => props.slotNo,
+  (value) => {
+    _slotNo.value = value;
+    slotVisiable.value = true;
   }
 );
 
@@ -102,7 +114,7 @@ function toBaye() {
 function showSlot(col: number, row: number) {
   if (bayesInfoList.value?.[col - 1]?.[row - 1]?.YST_SLOTNO) {
     const slotNoVal = bayesInfoList.value?.[col - 1]?.[row - 1]?.YST_SLOTNO;
-    slotNo.value = slotNoVal;
+    _slotNo.value = slotNoVal;
     slotVisiable.value = true;
   }
 }
@@ -190,7 +202,7 @@ function showSlot(col: number, row: number) {
       </div>
     </div>
 
-    <slot-modal v-model="slotVisiable" :slotNo="slotNo" />
+    <slot-modal v-model="slotVisiable" :slotNo="_slotNo" />
   </a-modal>
 </template>
 

@@ -246,6 +246,9 @@ watch(
   () => props.value,
   (value) => {
     if (value) getSlotData();
+  },
+  {
+    immediate: true,
   }
 );
 
