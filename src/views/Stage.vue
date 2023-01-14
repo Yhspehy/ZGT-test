@@ -22,6 +22,7 @@ const benchmarkOfArea = ref(2);
 
 // stageRef
 const stageRef = ref<Element | null>(null);
+const stageEl = ref<any>(null);
 // stage scale
 const scale = ref(1);
 
@@ -44,6 +45,8 @@ function getAreaList() {
       return res.json();
     })
     .then((res) => {
+      const start = Date.now();
+      console.log(start);
       walkTree(res.data);
     });
 }
@@ -63,6 +66,8 @@ function walkTree(data: StageType) {
     height: window.innerHeight,
     draggable: true,
   });
+
+  stageEl.value = stage;
 
   const layer = new Konva.Layer();
 
@@ -164,7 +169,10 @@ function zoom(event: WheelEvent) {
 
   scale.value += event.deltaY * -0.01 * 0.1;
   scale.value = Math.min(Math.max(0.125, scale.value), 4);
-  (stageRef.value as HTMLElement).style.transform = `scale(${scale.value})`;
+  stageEl.value.scale({
+    x: scale.value,
+    y: scale.value,
+  });
 }
 </script>
 
