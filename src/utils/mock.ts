@@ -6,7 +6,7 @@ import type {
   ContainerNumType,
 } from "@/views/type";
 
-export function mockData(areaList: AreaSettingInfo[]) {
+export function mockData(areaList: AreaSettingInfo[], addYardRows = true) {
   const start = Date.now();
 
   // 当前的箱子数量
@@ -33,17 +33,19 @@ export function mockData(areaList: AreaSettingInfo[]) {
 
       // 添加层
       const yardRowsInfo: YardRowsInfo[] = [];
-      const rowNum = parseInt(areaInfo.ARE_ROWNUM);
-      for (let k = 0; k < rowNum; k++) {
-        const num = Math.floor(Math.random() * 8) as ContainerNumType;
-        yardRowsInfo.push({
-          ARE_ID: _areaId,
-          YBY_ID: _bayeId,
-          ROWNO: k + "",
-          ContainerNum: num,
-          STATUS: "1",
-        });
-        currentNum += num;
+      if (addYardRows) {
+        const rowNum = parseInt(areaInfo.ARE_ROWNUM);
+        for (let k = 0; k < rowNum; k++) {
+          const num = Math.floor(Math.random() * 8) as ContainerNumType;
+          yardRowsInfo.push({
+            ARE_ID: _areaId,
+            YBY_ID: _bayeId,
+            ROWNO: k + "",
+            ContainerNum: num,
+            STATUS: "1",
+          });
+          currentNum += num;
+        }
       }
 
       yardBayesInfo.push({
@@ -76,7 +78,6 @@ export function mockData(areaList: AreaSettingInfo[]) {
 
   console.log(`当前箱子总数：${currentNum}`);
   console.log("mock time: " + (Date.now() - start) + "ms");
-  console.log(result);
   return result;
 }
 

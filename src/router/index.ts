@@ -12,11 +12,11 @@ const router = new VueRouter({
       name: "home",
       component: () => import("../views/Stage.vue"),
     },
-    // {
-    //   path: "/modal",
-    //   name: "modal",
-    //   component: () => import("../views/BayesInfoModal.vue"),
-    // },
+    {
+      path: "/area/drag",
+      name: "areaDrag",
+      component: () => import("../views/AreaDrag.vue"),
+    },
   ],
 });
 

@@ -376,6 +376,10 @@ function search() {
       <a-button class="setting" @click="settingVisible = true">
         场地设置
       </a-button>
+
+      <a-button class="setting" @click="$router.push('/area/drag')">
+        场地配置
+      </a-button>
     </div>
 
     <!-- canvas -->
