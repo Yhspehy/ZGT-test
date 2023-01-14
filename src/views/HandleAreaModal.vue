@@ -48,11 +48,9 @@ const formData = ref<AreaSettingInfo>({
 });
 
 watch(
-  () => props.edit,
-  (val: boolean) => {
-    if (val) {
-      formData.value = props.list[props.editIdx] as any;
-    }
+  () => props.editIdx,
+  (val: number) => {
+    formData.value = { ...(props.list[props.editIdx] as any) };
   }
 );
 
@@ -72,7 +70,10 @@ function OK() {
   if (!formData.value.ARE_ROWNUM.trim()) {
     return message.error("请输入堆场高度数量");
   }
-  if (parseInt(formData.value.ARE_EDBAY) % 2) {
+  if (formData.value.ARE_AREANO.trim().length > 2) {
+    return message.error("名称不能大于2位");
+  }
+  if ((parseInt(formData.value.ARE_EDBAY) & 1) === 0) {
     return message.error("堆场宽度数量必须是单数");
   }
   const _list = [...props.list] as AreaSettingInfo[];
@@ -91,6 +92,15 @@ function OK() {
   localStorage.setItem("areaList", JSON.stringify(_list));
   emit("getList");
   emit("input", false);
+
+  formData.value = {
+    ARE_AREANO: "",
+    ARE_STARTY: "",
+    ARE_STARTX: "",
+    ARE_EDBAY: "",
+    ARE_ROWNUM: "",
+    ARE_ROWWAY: "RL",
+  };
 }
 </script>
 

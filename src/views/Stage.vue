@@ -218,7 +218,7 @@ function zoom(event: WheelEvent) {
 
   scale.value += event.deltaY * -0.01 * 0.1;
   scale.value = Math.min(Math.max(0.125, scale.value), 4);
-  stageEl.value.scale({
+  stageEl.scale({
     x: scale.value,
     y: scale.value,
   });
@@ -286,7 +286,7 @@ function search() {
     />
 
     <!-- 场地维护列表 -->
-    <setting-list-modal v-model="settingVisible" />
+    <setting-list-modal v-model="settingVisible" @refresh="refresh" />
   </div>
 </template>
 

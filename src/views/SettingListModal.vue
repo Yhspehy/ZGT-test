@@ -22,6 +22,7 @@ const props = defineProps({
 
 const emit = defineEmits<{
   (e: "input", val: boolean): void;
+  (e: "refresh"): void;
 }>();
 
 // 箱区列表
@@ -101,6 +102,13 @@ function deleteArea(idx: number) {
   list.value.splice(idx, 1);
   localStorage.setItem("areaList", JSON.stringify(list.value));
 }
+
+function Ok() {
+  emit("input", false);
+  // setTimeout(() => {
+  //   emit("refresh");
+  // }, 1000);
+}
 </script>
 
 <template>
@@ -108,7 +116,7 @@ function deleteArea(idx: number) {
     ref="modalRef"
     title="堆场信息列表"
     :visible="props.value"
-    @ok="emit('input', false)"
+    @ok="Ok"
     @cancel="emit('input', false)"
     cancelText="取消"
     okText="确定"
