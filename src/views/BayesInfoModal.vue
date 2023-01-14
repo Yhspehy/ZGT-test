@@ -30,7 +30,7 @@ const props = defineProps({
   },
   endBay: {
     type: String,
-    default: "0",
+    default: "1",
   },
   slotNo: {
     type: String,

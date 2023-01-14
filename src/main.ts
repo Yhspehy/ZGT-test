@@ -10,7 +10,14 @@ import "ant-design-vue/lib/modal/style/css";
 
 import "./assets/main.css";
 
+import { defaultData } from "./utils/mock";
+
 Vue.use(Modal);
+
+const areaList = localStorage.getItem("areaList");
+if (!areaList) {
+  localStorage.setItem("areaList", JSON.stringify(defaultData));
+}
 
 new Vue({
   router,

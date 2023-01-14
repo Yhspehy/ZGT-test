@@ -55,3 +55,54 @@ export const slotColorList = [
     color: "orange",
   },
 ];
+
+export const berthesInfo = [
+  {
+    BTH_CODE: "10",
+    BTH_TER_ID: "2",
+    BTH_NAME: "10号泊位",
+    BTH_STPST: "1",
+    BTH_EDPST: "100",
+    BTH_DISPLAY_NAME: "10号泊位",
+  },
+  {
+    BTH_CODE: "11",
+    BTH_TER_ID: "2",
+    BTH_NAME: "11号泊位",
+    BTH_STPST: "101",
+    BTH_EDPST: "200",
+    BTH_DISPLAY_NAME: "11号泊位",
+  },
+  {
+    BTH_CODE: "12",
+    BTH_TER_ID: "2",
+    BTH_NAME: "12号泊位",
+    BTH_STPST: "201",
+    BTH_EDPST: "300",
+    BTH_DISPLAY_NAME: "12号泊位",
+  },
+  {
+    BTH_CODE: "13",
+    BTH_TER_ID: "2",
+    BTH_NAME: "13号泊位",
+    BTH_STPST: "301",
+    BTH_EDPST: "400",
+    BTH_DISPLAY_NAME: "13号泊位",
+  },
+  {
+    BTH_CODE: "14",
+    BTH_TER_ID: "2",
+    BTH_NAME: "14号泊位",
+    BTH_STPST: "401",
+    BTH_EDPST: "500",
+    BTH_DISPLAY_NAME: "14号泊位",
+  },
+  {
+    BTH_CODE: "15",
+    BTH_TER_ID: "2",
+    BTH_NAME: "15号泊位",
+    BTH_STPST: "501",
+    BTH_EDPST: "600",
+    BTH_DISPLAY_NAME: "15号泊位",
+  },
+];

@@ -19,17 +19,21 @@ import "ant-design-vue/lib/input/style/css";
 import "ant-design-vue/lib/button/style/css";
 import "ant-design-vue/lib/message/style/css";
 
-import { bayeColorList, slotColorList } from "@/utils/dict";
-import type { StageType } from "./type";
+import { bayeColorList, slotColorList, berthesInfo } from "@/utils/dict";
+import { mockData } from "@/utils/mock";
+
+import type { StageType, AreaSettingInfo, YardAreasInfo } from "./type";
 
 // 生成rect的基准，默认放大5倍，基数是1px
 const benchmarkOfRect = ref(5);
 // 箱区的基准，避免rect变大，而箱区靠拢
 const benchmarkOfArea = ref(2);
 
-// stageRef && stageEl
+// stageRef && stageEl && layerEl
 const stageRef = ref<Element | null>(null);
-const stageEl = ref<any>(null);
+let stageEl: any = null;
+let layerEl: any = null;
+let rectEl: any = null;
 // stage scale
 const scale = ref(1);
 
@@ -47,22 +51,27 @@ const searchValue = ref("");
 const settingVisible = ref(false);
 
 onMounted(() => {
-  getAreaList();
+  const yardAreasInfo = getAreaList();
+  walkStage({
+    berthesInfo,
+    vesselBertherInfo: [],
+    yardAreasInfo,
+  });
 });
 
 /**
  * 获取stage数据
  */
 function getAreaList() {
-  fetch("/stage.json")
-    .then((res) => {
-      return res.json();
-    })
-    .then((res) => {
-      const start = Date.now();
-      console.log(start);
-      walkTree(res.data);
-    });
+  const areaList = localStorage.getItem("areaList");
+  if (areaList) {
+    const _areaList = JSON.parse(areaList) as AreaSettingInfo[];
+    const yardAreasInfo = mockData(_areaList);
+    return yardAreasInfo;
+  } else {
+    message.error("暂无场地数据，请先添加场地");
+    return [];
+  }
 }
 
 /**
@@ -70,7 +79,7 @@ function getAreaList() {
  * 如果需要刷新，则需要将state状态提取出来
  * @param data  StageType
  */
-function walkTree(data: StageType) {
+function walkStage(data: StageType) {
   const { berthesInfo, yardAreasInfo } = data;
 
   const stage = new Konva.Stage({
@@ -82,9 +91,9 @@ function walkTree(data: StageType) {
     draggable: true,
   });
 
-  stageEl.value = stage;
+  stageEl = stage;
 
-  const layer = new Konva.Layer();
+  const layerHeader = new Konva.Layer();
 
   // 遍历泊场
   for (let idx = 0; idx < berthesInfo.length; idx++) {
@@ -107,11 +116,35 @@ function walkTree(data: StageType) {
       fill: "black",
     });
 
-    layer.add(rect);
-    layer.add(name);
+    layerHeader.add(rect);
+    layerHeader.add(name);
   }
 
+  stage.add(layerHeader);
+
+  // clone rect for cache
+  rectEl = new (Konva as any).Rect({
+    x: 0,
+    y: 0,
+    width: benchmarkOfRect.value * 2,
+    height: benchmarkOfRect.value,
+    fill: "#fff",
+    stroke: "grey",
+    strokeWidth: 1,
+  });
+  rectEl.cache();
+
   // 箱区
+  walkBaye(yardAreasInfo);
+
+  nextTick(() => {
+    (stageRef.value as HTMLElement).onwheel = zoom;
+  });
+}
+
+function walkBaye(yardAreasInfo: YardAreasInfo[]) {
+  const layer = new Konva.Layer();
+  layerEl = layer;
   for (let areaIdx = 0; areaIdx < yardAreasInfo.length; areaIdx++) {
     const areaInfo = yardAreasInfo[areaIdx];
     const areaX = areaInfo.ARE_STARTX;
@@ -131,7 +164,7 @@ function walkTree(data: StageType) {
        */
       for (let rowIdx = 0; rowIdx < bayeRowList.length; rowIdx++) {
         const rowInfo = bayeRowList[rowIdx];
-        const rect = new (Konva as any).Rect({
+        const rect = rectEl.clone({
           x:
             parseInt(areaX) * benchmarkOfArea.value +
             bayeIdx * benchmarkOfRect.value * 2,
@@ -166,12 +199,13 @@ function walkTree(data: StageType) {
       visible.value = true;
     }
   });
+  stageEl.add(layer);
+}
 
-  stage.add(layer);
-
-  nextTick(() => {
-    (stageRef.value as HTMLElement).onwheel = zoom;
-  });
+function refresh() {
+  layerEl.destroy();
+  const yardAreasInfo = getAreaList();
+  walkBaye(yardAreasInfo);
 }
 
 function zoom(event: WheelEvent) {
@@ -189,8 +223,6 @@ function zoom(event: WheelEvent) {
     y: scale.value,
   });
 }
-
-function refresh() {}
 
 function search() {
   if (searchValue.value.length !== 6) {
@@ -210,7 +242,7 @@ function search() {
   <div>
     <!-- 顶部曹作栏 -->
     <div class="operate-header">
-      <a-button class="refresh">刷新</a-button>
+      <a-button class="refresh" type="primary" @click="refresh">刷新</a-button>
 
       <a-input
         class="navigate-input"
@@ -218,11 +250,11 @@ function search() {
         style="width: 200px"
         @keyup.enter.native="search"
       />
-      <a-button @click="search">搜索</a-button>
+      <a-button @click="search" type="primary">搜索</a-button>
 
-      <a-button class="setting" @click="settingVisible = true"
-        >场地设置</a-button
-      >
+      <a-button class="setting" @click="settingVisible = true">
+        场地设置
+      </a-button>
     </div>
 
     <!-- canvas -->

@@ -43,36 +43,35 @@ watch(
   }
 );
 
-// column
 const columns = [
   {
     title: "堆场名称",
-    dataIndex: "name",
-    key: "name",
+    dataIndex: "ARE_AREANO",
+    key: "ARE_AREANO",
   },
   {
     title: "堆场宽度数量",
-    dataIndex: "width",
-    key: "width",
+    dataIndex: "ARE_EDBAY",
+    key: "ARE_EDBAY",
   },
   {
     title: "堆场高度数量",
-    dataIndex: "height",
-    key: "height",
+    dataIndex: "ARE_ROWNUM",
+    key: "ARE_ROWNUM",
   },
   {
     title: "Y轴",
-    dataIndex: "y",
-    key: "y",
+    dataIndex: "ARE_STARTY",
+    key: "ARE_STARTY",
   },
   {
     title: "X轴",
-    dataIndex: "x",
-    key: "x",
+    dataIndex: "xARE_STARTX",
+    key: "ARE_STARTX",
   },
   {
     title: "倍位方向",
-    key: "direction",
+    key: "ARE_ROWWAY",
     scopedSlots: { customRender: "direction" },
   },
   {
@@ -116,9 +115,14 @@ function deleteArea(idx: number) {
     :width="1000"
   >
     <a-button @click="addArea" type="primary">添加</a-button>
-    <a-table :columns="columns" :data-source="list" rowKey="name">
+    <a-table
+      :columns="columns"
+      :data-source="list"
+      rowKey="ARE_AREANO"
+      :pagination="false"
+    >
       <span slot="direction" slot-scope="text">{{
-        text === "1" ? "从右到左" : "从左到右"
+        text === "RL" ? "从右到左" : "从左到右"
       }}</span>
 
       <span slot="action" slot-scope="text, record, idx">

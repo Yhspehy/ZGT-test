@@ -43,9 +43,11 @@ export type YardRowsInfo = {
   ARE_ID: string; //箱区
   YBY_ID: string; //贝位编号
   ROWNO: string; //列
-  ContainerNum: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8; //集装箱个数
+  ContainerNum: ContainerNumType; //集装箱个数
   STATUS: string;
 };
+
+export type ContainerNumType = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
 export type BayesInfoList = {
   YST_SLOTNO: string;
@@ -56,10 +58,10 @@ export type BayesInfoList = {
 }[][];
 
 export type AreaSettingInfo = {
-  name: string;
-  y: string;
-  x: string;
-  width: string;
-  height: string;
-  direction: "1" | "2";
+  ARE_AREANO: string;
+  ARE_STARTX: string;
+  ARE_STARTY: string;
+  ARE_EDBAY: string;
+  ARE_ROWNUM: string;
+  ARE_ROWWAY: "RL" | "LR";
 };
