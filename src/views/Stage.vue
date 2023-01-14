@@ -246,9 +246,11 @@ function drawAxis(yardAreasInfo: YardAreasInfo[]) {
     // 先画列
     for (let rowIdx = 0; rowIdx < rowNum; rowIdx++) {
       const text = textEl.clone({
-        x: (areaX - 2) * benchmarkOfArea.value,
+        x: (areaX - 2) * benchmarkOfArea.value - benchmarkOfRect.value,
         y: areaY * benchmarkOfArea.value + rowIdx * benchmarkOfRect.value,
-        text: "1",
+        text: rowIdx + 1,
+        align: "center",
+        width: benchmarkOfRect.value * 2,
       });
       layerAxisEl.add(text);
     }
