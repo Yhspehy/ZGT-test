@@ -138,6 +138,7 @@ function OK() {
           v-model="formData.ARE_STARTY"
           class="input"
           placeholder="请输入Y轴"
+          type="number"
         />
       </div>
 
@@ -150,6 +151,7 @@ function OK() {
           v-model="formData.ARE_STARTX"
           class="input"
           placeholder="请输入X轴"
+          type="number"
         />
       </div>
 
@@ -162,6 +164,7 @@ function OK() {
           v-model="formData.ARE_EDBAY"
           class="input"
           placeholder="请输入堆场宽度数量"
+          type="number"
         />
       </div>
 
@@ -174,6 +177,7 @@ function OK() {
           v-model="formData.ARE_ROWNUM"
           class="input"
           placeholder="请输入堆场高度数量"
+          type="number"
         />
       </div>
 
