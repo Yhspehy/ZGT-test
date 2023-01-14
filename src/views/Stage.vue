@@ -135,7 +135,24 @@ function walkStage(data: StageType) {
   rectEl.cache();
 
   // 箱区
+  const layerBaye = new Konva.Layer();
+  layerEl = layerBaye;
   walkBaye(yardAreasInfo);
+
+  /**
+   * Event Delegation
+   * 避免多个rect绑定
+   */
+  layerBaye.on("click", (evt: any) => {
+    const rect = evt.target;
+    if (rect) {
+      bayeNo.value = rect.attrs.bayeNo;
+      areaNo.value = rect.attrs.areaNo;
+      endBay.value = rect.attrs.endBay;
+      visible.value = true;
+    }
+  });
+  stageEl.add(layerBaye);
 
   nextTick(() => {
     (stageRef.value as HTMLElement).onwheel = zoom;
@@ -143,8 +160,7 @@ function walkStage(data: StageType) {
 }
 
 function walkBaye(yardAreasInfo: YardAreasInfo[]) {
-  const layer = new Konva.Layer();
-  layerEl = layer;
+  const start = Date.now();
   for (let areaIdx = 0; areaIdx < yardAreasInfo.length; areaIdx++) {
     const areaInfo = yardAreasInfo[areaIdx];
     const areaX = areaInfo.ARE_STARTX;
@@ -153,6 +169,9 @@ function walkBaye(yardAreasInfo: YardAreasInfo[]) {
 
     // 每个箱区的贝
     // 因为贝是从右往左，所以倒序
+    if (areaInfo.ARE_BAYWAY === "LR") {
+      bayeList.reverse();
+    }
     for (let bayeIdx = bayeList.length - 1; bayeIdx >= 0; bayeIdx--) {
       const bayeInfo = bayeList[bayeIdx];
       const bayeRowList = bayeInfo.yardRowsInfo;
@@ -181,29 +200,16 @@ function walkBaye(yardAreasInfo: YardAreasInfo[]) {
           areaNo: bayeInfo.YBY_ARE_AREANO,
           endBay: areaInfo.ARE_EDBAY,
         });
-        layer.add(rect);
+        layerEl.add(rect);
       }
     }
   }
-
-  /**
-   * Event Delegation
-   * 避免多个rect绑定
-   */
-  layer.on("click", (evt: any) => {
-    const rect = evt.target;
-    if (rect) {
-      bayeNo.value = rect.attrs.bayeNo;
-      areaNo.value = rect.attrs.areaNo;
-      endBay.value = rect.attrs.endBay;
-      visible.value = true;
-    }
-  });
-  stageEl.add(layer);
+  layerEl.draw();
+  console.log("draw time: " + (Date.now() - start));
 }
 
 function refresh() {
-  layerEl.destroy();
+  layerEl.destroyChildren();
   const yardAreasInfo = getAreaList();
   walkBaye(yardAreasInfo);
 }

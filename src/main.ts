@@ -16,7 +16,7 @@ Vue.use(Modal);
 
 const areaList = localStorage.getItem("areaList");
 if (!areaList) {
-  localStorage.setItem("areaList", JSON.stringify(defaultData));
+  localStorage.setItem("areaList", defaultData);
 }
 
 new Vue({
