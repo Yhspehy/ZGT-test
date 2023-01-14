@@ -14,6 +14,7 @@ import "ant-design-vue/lib/radio/style/css";
 import "ant-design-vue/lib/message/style/css";
 
 import type { AreaSettingInfo } from "./type";
+
 const props = defineProps({
   value: {
     type: Boolean,
@@ -44,7 +45,7 @@ const formData = ref<AreaSettingInfo>({
   ARE_STARTX: "",
   ARE_EDBAY: "",
   ARE_ROWNUM: "",
-  ARE_ROWWAY: "RL",
+  ARE_BAYWAY: "RL",
 });
 
 watch(
@@ -99,7 +100,7 @@ function OK() {
     ARE_STARTX: "",
     ARE_EDBAY: "",
     ARE_ROWNUM: "",
-    ARE_ROWWAY: "RL",
+    ARE_BAYWAY: "RL",
   };
 }
 </script>
@@ -179,16 +180,16 @@ function OK() {
       <div class="row">
         <div class="label">倍位方向</div>
         <a-radio
-          value="1"
-          :checked="formData.ARE_ROWWAY === 'RL'"
-          @click="formData.ARE_ROWWAY = 'RL'"
+          value="RL"
+          :checked="formData.ARE_BAYWAY === 'RL'"
+          @click="formData.ARE_BAYWAY = 'RL'"
         >
           从右到左
         </a-radio>
         <a-radio
-          value="2"
-          :checked="formData.ARE_ROWWAY === 'LR'"
-          @click="formData.ARE_ROWWAY = 'LR'"
+          value="LR"
+          :checked="formData.ARE_BAYWAY === 'LR'"
+          @click="formData.ARE_BAYWAY = 'LR'"
         >
           从左到右
         </a-radio>

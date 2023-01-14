@@ -63,5 +63,5 @@ export type AreaSettingInfo = {
   ARE_STARTY: string;
   ARE_EDBAY: string;
   ARE_ROWNUM: string;
-  ARE_ROWWAY: "RL" | "LR";
+  ARE_BAYWAY: "RL" | "LR";
 };

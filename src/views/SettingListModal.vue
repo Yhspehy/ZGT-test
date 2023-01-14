@@ -72,7 +72,8 @@ const columns = [
   },
   {
     title: "倍位方向",
-    key: "ARE_ROWWAY",
+    key: "ARE_BAYWAY",
+    dataIndex: "ARE_BAYWAY",
     scopedSlots: { customRender: "direction" },
   },
   {
