@@ -309,12 +309,12 @@ function refresh() {
   layerIdEl.destroyChildren();
   const yardAreasInfo = getAreaList();
   walkBaye(yardAreasInfo);
-  setTimeout(() => {
-    // 渲染ID
-    drawId(yardAreasInfo);
-    // 渲染坐标
-    drawAxis(yardAreasInfo);
-  }, 1000);
+  // setTimeout(() => {
+  // 渲染ID
+  drawId(yardAreasInfo);
+  // 渲染坐标
+  drawAxis(yardAreasInfo);
+  // }, 1000);
 }
 
 function zoom(event: WheelEvent) {
