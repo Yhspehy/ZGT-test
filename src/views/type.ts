@@ -54,3 +54,12 @@ export type BayesInfoList = {
   YST_ROWNO: string;
   YST_TIERNO: string;
 }[][];
+
+export type AreaSettingInfo = {
+  name: string;
+  y: string;
+  x: string;
+  width: string;
+  height: string;
+  direction: "1" | "2";
+};

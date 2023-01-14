@@ -7,7 +7,9 @@ export default {
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from "vue";
 
-import BayesInfoModalVue from "./BayesInfoModal.vue";
+import BayesInfoModal from "./BayesInfoModal.vue";
+import SettingListModal from "./SettingListModal.vue";
+
 import Konva from "konva/lib/Core";
 import "konva/lib/shapes/Rect";
 import "konva/lib/shapes/Text";
@@ -40,6 +42,9 @@ const slotNo = ref("");
 
 // 搜索内容
 const searchValue = ref("");
+
+// 场地维护的展示
+const settingVisible = ref(false);
 
 onMounted(() => {
   getAreaList();
@@ -215,7 +220,9 @@ function search() {
       />
       <a-button @click="search">搜索</a-button>
 
-      <a-button class="setting">场地设置</a-button>
+      <a-button class="setting" @click="settingVisible = true"
+        >场地设置</a-button
+      >
     </div>
 
     <!-- canvas -->
@@ -238,13 +245,16 @@ function search() {
     </div>
 
     <!-- 贝位弹窗 -->
-    <BayesInfoModalVue
+    <bayes-info-modal
       v-model="visible"
       :areaNo="areaNo"
       :bayeNo="bayeNo"
       :endBay="endBay"
       :slotNo="slotNo"
     />
+
+    <!-- 场地维护列表 -->
+    <setting-list-modal v-model="settingVisible" />
   </div>
 </template>
 
