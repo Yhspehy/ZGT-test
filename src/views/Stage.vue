@@ -154,11 +154,10 @@ function walkStage(data: StageType) {
   layerEl = layerBaye;
   walkBaye(yardAreasInfo);
 
-  // 渲染ID
-  drawId(yardAreasInfo);
-
-  // 渲染坐标
   setTimeout(() => {
+    // 渲染ID
+    drawId(yardAreasInfo);
+    // 渲染坐标
     drawAxis(yardAreasInfo);
   }, 1000);
 
@@ -233,7 +232,9 @@ function walkBaye(yardAreasInfo: YardAreasInfo[]) {
 }
 
 function drawAxis(yardAreasInfo: YardAreasInfo[]) {
-  layerAxisEl = new Konva.Layer();
+  if (!layerAxisEl) {
+    layerAxisEl = new Konva.Layer();
+  }
 
   for (let areaIdx = 0; areaIdx < yardAreasInfo.length; areaIdx++) {
     const areaInfo = yardAreasInfo[areaIdx];
@@ -285,7 +286,9 @@ function drawAxis(yardAreasInfo: YardAreasInfo[]) {
 }
 
 function drawId(yardAreasInfo: YardAreasInfo[]) {
-  layerIdEl = new Konva.Layer();
+  if (!layerIdEl) {
+    layerIdEl = new Konva.Layer();
+  }
 
   for (let areaIdx = 0; areaIdx < yardAreasInfo.length; areaIdx++) {
     const areaInfo = yardAreasInfo[areaIdx];
@@ -302,8 +305,16 @@ function drawId(yardAreasInfo: YardAreasInfo[]) {
 
 function refresh() {
   layerEl.destroyChildren();
+  layerAxisEl.destroyChildren();
+  layerIdEl.destroyChildren();
   const yardAreasInfo = getAreaList();
   walkBaye(yardAreasInfo);
+  setTimeout(() => {
+    // 渲染ID
+    drawId(yardAreasInfo);
+    // 渲染坐标
+    drawAxis(yardAreasInfo);
+  }, 1000);
 }
 
 function zoom(event: WheelEvent) {
